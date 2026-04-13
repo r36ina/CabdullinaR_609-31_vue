@@ -42,12 +42,12 @@ export default {
   <header>
     <nav>
       <ul>
-        <li><router-link to="/">Главная</router-link></li>
+        <li><router-link to="/">Pet's Help</router-link></li>
         <li><router-link to="/services">Услуги</router-link></li>
-        <li><router-link to="/about">О Нас</router-link></li>
+        <li><router-link to="/about">О нас</router-link></li>
       </ul>
       <div v-if="isAuthenticated && user">
-        Welcome, {{user.name}}
+        Welcome, {{user.first_name}}
         <button @click="logout">Logout</button>
       </div>
       <div v-else>
@@ -66,9 +66,28 @@ export default {
       </div>
     </nav>
   </header>
-  <router-view></router-view>
+  <main>
+    <router-view></router-view>
+  </main>
 </template>
+
 <style scoped>
+
+nav {
+  display: flex;
+  gap: 32px;
+  justify-content: space-between;
+}
+nav ul {
+  display: flex;
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+}
+nav form {
+  display: flex;
+  gap: 8px;
+}
 .error {
   color: red;
 }
