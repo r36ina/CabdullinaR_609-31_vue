@@ -18,7 +18,7 @@
 
 <style scoped>
 h2 {
-  margin: 10px 0;
+  margin: 20px 0;
   text-align: center;
 }
 </style>
