@@ -1,12 +1,35 @@
 <script>
 import { useAuthStore } from '@/stores/authStore';
+import Button from "primevue/button";
+import Menubar from "primevue/menubar";
+import InputText from "primevue/inputtext";
 
 export default {
+  components: {Button, InputText, Menubar},
   data() {
     return {
+      date: '',
       email: '',
       password: '',
       authStore: useAuthStore(),
+      items: [
+        {
+          label: "Pet's Help",
+          icon: 'pi pi-fw pi-home',
+          route: '/',
+          shortcut: 'Ctrl+H',
+        },
+        {
+          label: "Услуги",
+          icon: 'pi pi-fw pi pi-list',
+          route: '/services',
+        },
+        {
+          label: 'О Нас',
+          icon: 'pi pi-fw pi-sort-down-fill',
+          route: '/about',
+        },
+      ],
     };
   },
   computed: {
@@ -39,56 +62,49 @@ export default {
 </script>
 
 <template>
-  <header>
-    <nav>
-      <ul>
-        <li><router-link to="/">Pet's Help</router-link></li>
-        <li><router-link to="/services">Услуги</router-link></li>
-        <li><router-link to="/about">О нас</router-link></li>
-      </ul>
-      <div v-if="isAuthenticated && user">
-        Welcome, {{user.first_name}}
-        <button @click="logout">Logout</button>
+  <Menubar :model="items">
+    <template #start>
+        <img src="@/assets/logo_icon.png" width="50" alt="iconlogo" class="logo" />
+    </template>
+    <template #item="{ item, props, hasSubmenu, root }">
+      <a class="flex items-center ml-4 p-4">
+        <router-link v-if="item.route" :to="item.route">
+          <span :class="item.icon"/>
+          <span class="ml-1">{{item.label}}</span>
+        </router-link>
+      </a>
+    </template>
+    <template #end>
+      <div class="flex items-center gap-2">
+        <div v-if="isAuthenticated && user">
+          <span class="pi pi-fw pi-user mr-4"/> {{user.first_name}}
+          <Button @click="logout" class="ml-4">Выйти</Button>
+        </div>
+        <div v-else>
+          <form @submit.prevent="login">
+            <InputText v-model="email" type="email" id="email" required placeholder="Логин" class="m-2 sm:w-auto"
+                       :class="{'p-invalid': authError}"/>
+            <InputText v-model="password" type="password" id="password" required placeholder="Пароль" class="m-2 sm:w-auto"
+                       :class="{'p-invalid': authError}"/>
+            <Button type="submit">Войти</Button>
+            <div class="ml-2"><small v-if="authError" class="error">{{authError}}</small></div>
+          </form>
+        </div>
       </div>
-      <div v-else>
-        <form @submit.prevent="login">
-          <div>
-            <label for="email">Email</label>
-            <input v-model="email" type="email" id="email" required />
-          </div>
-          <div>
-            <label for="password">Password</label>
-            <input v-model="password" type="password" id="password" required />
-          </div>
-          <button type="submit">Login</button>
-          <p v-if="authError" class="error">{{authError}}</p>
-        </form>
-      </div>
-    </nav>
-  </header>
+    </template>
+  </Menubar>
   <main>
     <router-view></router-view>
   </main>
 </template>
 
 <style scoped>
-
-nav {
-  display: flex;
-  gap: 32px;
-  justify-content: space-between;
-}
-nav ul {
-  display: flex;
-  gap: 16px;
-  list-style: none;
-  padding: 0;
-}
-nav form {
-  display: flex;
-  gap: 8px;
-}
 .error {
   color: red;
+}
+@media (max-width: 960px) {
+  .logo {
+    display: none;
+  }
 }
 </style>
