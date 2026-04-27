@@ -8,7 +8,6 @@ export default {
   components: {Button, InputText, Menubar},
   data() {
     return {
-      date: '',
       email: '',
       password: '',
       authStore: useAuthStore(),
@@ -17,12 +16,16 @@ export default {
           label: "Pet's Help",
           icon: 'pi pi-fw pi-home',
           route: '/',
-          shortcut: 'Ctrl+H',
         },
         {
-          label: "Услуги",
+          label: 'Услуги',
           icon: 'pi pi-fw pi pi-list',
           route: '/services',
+        },
+        {
+          label: 'Врачи',
+          icon: 'pi pi-fw pi pi-user-plus',
+          route: '/medworkers',
         },
         {
           label: 'О Нас',
@@ -66,13 +69,11 @@ export default {
     <template #start>
         <img src="@/assets/logo_icon.png" width="50" alt="iconlogo" class="logo" />
     </template>
-    <template #item="{ item, props, hasSubmenu, root }">
-      <a class="flex items-center ml-4 p-4">
-        <router-link v-if="item.route" :to="item.route">
-          <span :class="item.icon"/>
-          <span class="ml-1">{{item.label}}</span>
-        </router-link>
-      </a>
+    <template #item="{ item }">
+      <router-link v-if="item.route" :to="item.route" class="flex items-center ml-4 p-4">
+        <span :class="item.icon"/>
+        <span class="ml-1">{{item.label}}</span>
+      </router-link>
     </template>
     <template #end>
       <div class="flex items-center gap-2">

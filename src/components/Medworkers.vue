@@ -13,49 +13,48 @@ export default {
     }
   },
   computed: {
-    services() {
-      return this.dataStore.services;
+    medworkers() {
+      return this.dataStore.medworkers;
     },
-    services_total() {
-      return this.dataStore.services_total;
+    medworkers_total() {
+      return this.dataStore.medworkers_total;
     }
   },
-  async mounted() {
-    console.log('Services component MOUNTED!');
-    await this.dataStore.get_services();
-    await this.dataStore.get_services_total();
-    console.log('Services=', this.services);
+  mounted() {
+    console.log('Medworkers component MOUNTED!');
+    this.dataStore.get_medworkers();
+    this.dataStore.get_medworkers_total();
+    console.log('Medworkers=', this.medworkers);
   },
   methods: {
     onPageChange(event) {
       this.offset = event.first;
       this.perpage = event.rows;
-      this.dataStore.get_services(
-          this.offset / this.perpage, this.perpage
-      );
+      this.dataStore.get_medworkers(this.offset / this.perpage, this.perpage);
     }
   }
 }
 </script>
 
 <template>
-  <div class="services">
-    <h2>Наши услуги</h2>
+  <div class="medworkers">
+    <h2>Наши Врачи</h2>
   </div>
   <DataTable
-      :value="services"
+      :value="medworkers"
       :lazy="true"
       :loading="dataStore.loading"
       :paginator="true"
       :rows="perpage"
-      :rowsPerPageOptions="[2, 5, 10]"
-      :totalRecords="services_total"
+      :rowsPerPageOptions="[2, 5]"
+      :totalRecords="medworkers_total"
       @page="onPageChange"
       responsive-layout="scroll"
       :first="offset">
-    <Column field="name" header="Наименование услуги"/>
-    <Column field="price" header="Цена"/>
-    <Column field="category.name" header="Категория"/>
+    <Column field="first_name" header="Имя"/>
+    <Column field="last_name" header="Фамилия"/>
+    <Column field="job_title" header="Должность"/>
+    <Column field="email" header="Email"/>
   </DataTable>
 </template>
 
