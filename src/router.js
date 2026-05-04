@@ -3,6 +3,7 @@ import Home from "./components/Home.vue";
 import Services from "./components/Services.vue";
 import About from "./components/About.vue";
 import Medworkers from "@/components/Medworkers.vue";
+import CreateService from "@/components/CreateService.vue";
 const routes = [
     {
         path: '/',
@@ -20,6 +21,10 @@ const routes = [
         path:'/about',
         component: About,
     },
+    {
+        path:'/createService',
+        component: CreateService,
+    }
 ];
 const router = createRouter({
     history: createWebHistory(),
