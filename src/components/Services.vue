@@ -2,12 +2,15 @@
 import DataView from "primevue/dataview";
 import Card from "primevue/card";
 import Button from 'primevue/button';
+import InputText from 'primevue/inputtext';
+import Toast from 'primevue/toast';
+import ConfirmPopup from 'primevue/confirmpopup';
 import { useDataStore } from '@/stores/dataStore';
 import Dialog from 'primevue/dialog';
 import { useAuthStore } from '@/stores/authStore.js';
 
 export default {
-  components: {DataView, Card, Button, Dialog},
+  components: {DataView, Card, Button, Dialog, InputText, Toast, ConfirmPopup},
   data() {
     return {
       dataStore: useDataStore(),
@@ -16,6 +19,7 @@ export default {
       selectedService: null,
       showDialog: false,
       authStore: useAuthStore(),
+      search: ""
     }
   },
   computed: {
@@ -27,6 +31,12 @@ export default {
     },
     services_total() {
       return this.dataStore.services_total;
+    },
+    error_code() {
+      return this.dataStore.errorCode
+    },
+    error_message() {
+      return this.dataStore.errorMessage;
     }
   },
   async mounted() {
@@ -46,15 +56,38 @@ export default {
       this.dataStore.get_services(
           this.offset / this.perpage, this.perpage
       );
-    }
+    },
+    onPushSearchButton() {
+      this.dataStore.get_services_total(this.search);
+      this.dataStore.get_services(undefined, undefined, this.search);
+    },
+    async deleteService(id) {
+      await this.dataStore.delete_service(id);
+      if (this.error_code > 0) {
+        this.$toast.add({severity: 'error', summary: 'Ошибка удаления услуги' + id,
+          detail: this.error_message + " " +this.error_code, life: 4000});
+      } else {
+        this.$toast.add({severity: 'success', summary: 'Услуга ' + id + " успешна удалена",
+          detail: this.error_message + " " +this.error_code, life: 4000});
+      }
+      this.dataStore.get_services(this.offset / this.perpage, this.perpage, this.search);
+    },
+    openConfirmPopup(event, data) {
+      this.$confirm.require({
+        message: 'Вы уверены, что хотите удалить услугу ' + data.id + '?',
+        icon: 'pi pi-exclamation-circle',
+        acceptLabel: 'Да',
+        rejectLabel: 'Нет',
+        accept: () => {
+          this.deleteService(data.id);
+        }
+      })
+    },
   }
 }
 </script>
 
 <template>
-  <div class="services">
-    <h2>Наши услуги</h2>
-  </div>
   <DataView
       :value="services"
       :lazy="true"
@@ -63,6 +96,11 @@ export default {
       :totalRecords="services_total"
       :paginator="true"
       @page="onPageChange">
+    <template #header>
+      <InputText v-model="search" type="text" id="search" required placeholder="Наименование"
+                 class="m-2 sm:w-auto"/>
+      <Button type="button" @click="onPushSearchButton" icon="pi pi-search" label="Найти"/>
+    </template>
     <template #list="slotProps">
       <div class="flex flex-wrap gap-4 justify-center p-4">
         <Card v-for="service in slotProps.items" :key="service.id" style="width: 320px;">
@@ -81,8 +119,10 @@ export default {
               <Button label="Подробнее" severity="info" variant="outlined" class="w-full" icon="pi pi-info-circle"
                       @click="openDialog(service)"/>
               <div v-if="isAdmin" class="flex gap-2">
-                <Button label="Изменить" severity="secondary" variant="outlined" class="w-full" icon="pi pi-pencil"/>
-                <Button label="Удалить" class="w-full" icon="pi pi-trash"/>
+                <Button label="Изменить" severity="secondary" variant="outlined" class="w-full" icon="pi pi-pencil"
+                        @click="$router.push('/createService/' + service.id)"/>
+                <Button label="Удалить" class="w-full" icon="pi pi-trash"
+                        @click="openConfirmPopup($event, service)"/>
               </div>
             </div>
           </template>
@@ -90,6 +130,8 @@ export default {
       </div>
     </template>
   </DataView>
+  <ConfirmPopup></ConfirmPopup>
+  <Toast></Toast>
   <Dialog v-model:visible="showDialog" :header="selectedService?.name" modal
           :style="{ width: '50vw' }"
           :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
@@ -101,10 +143,6 @@ export default {
 </template>
 
 <style scoped>
-h2 {
-  margin: 20px 0;
-  text-align: center;
-}
 :deep(.p-card-title) {
   height: 60px;
   overflow: hidden;

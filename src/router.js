@@ -22,7 +22,7 @@ const routes = [
         component: About,
     },
     {
-        path:'/createService',
+        path:'/createService/:id?',
         component: CreateService,
     }
 ];
